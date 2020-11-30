@@ -1,0 +1,85 @@
+#include <iostream>
+#include <unordered_map>
+#include <set>
+using namespace std;
+
+class person{
+    public:
+    string name;
+    int net_value;
+};
+
+bool operator<(person p1,person p2){
+   return p1.net_value < p2.net_value;
+}
+
+int main() {
+    int transactions;
+    cin >> transactions;
+    unordered_map<string,int> net_effective_Amount;
+    while(transactions--){
+        string person1,person2;
+        int value;
+        cin >> person1 >> person2 >> value;
+        if(net_effective_Amount.find(person1) == net_effective_Amount.end()){
+            net_effective_Amount[person1] = 0;
+        }
+        if(net_effective_Amount.find(person2) == net_effective_Amount.end()){
+            net_effective_Amount[person2] = 0;
+        }
+        net_effective_Amount[person1] -= value;
+        net_effective_Amount[person2] += value;
+
+    }
+
+    multiset<person> maxminHeap;
+    unordered_map<string,int> :: iterator it;
+    for(it = net_effective_Amount.begin();it != net_effective_Amount.end();it++){
+        person p;
+        p.name = it->first;
+        p.net_value = it->second;
+        maxminHeap.insert(p);
+    }
+
+    multiset<person> :: iterator it1, it2;
+    it1 = maxminHeap.begin();
+    it2 = prev(maxminHeap.end());
+
+    int minimum_transactions = 0;
+
+    while(!maxminHeap.empty()){
+        it1 = maxminHeap.begin();
+        it2 = prev(maxminHeap.end());
+        int v1,v2;
+        string name1,name2;
+        v1 = it1->net_value;
+        v2 = it2->net_value;
+        name1 = it1->name;
+        name2 = it2->name;
+        maxminHeap.erase(it1);
+        maxminHeap.erase(it2);
+        int absv1 = v1 < 0 ? -v1 : v1;
+        int absv2 = v2 < 0 ? -v2 : v2;
+        int min_value = min(absv1,absv2);
+        cout << name1 << " gives " << "Rs " << min_value << " to " << name2 << endl;
+        v1 += min_value;
+        v2 -= min_value;
+        if(v1 != 0){
+          person p;
+          p.name = name1;
+          p.net_value = v1;  
+          maxminHeap.insert(p);
+        }
+        if(v2 != 0){
+          person p;
+          p.name = name2;
+          p.net_value = v2;
+          maxminHeap.insert(p);
+        }
+
+        minimum_transactions++;
+    }
+
+    cout << "Minimum Transactions are " << minimum_transactions;
+
+}
